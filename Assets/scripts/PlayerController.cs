@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System;
 
 
 
 public class PlayerController : MoveObject {
 	public enum STATS_FIRE_MODE { One, Two, Three, Five};
 	public STATS_FIRE_MODE fireMode;
+	Queue<STATS_FIRE_MODE> fireQueue = new Queue<STATS_FIRE_MODE> ();
 
 	public float speedEdit;
 	public float tilt;
@@ -30,6 +33,12 @@ public class PlayerController : MoveObject {
 	public override void Init(){
 		base.Init ();
 		fireMode = STATS_FIRE_MODE.Five;
+
+		//enum -> queue에 넣고 선회하기
+		Array _arr = Enum.GetValues (typeof(STATS_FIRE_MODE));
+		for (int i = 0; i < _arr.Length; i++) {
+			fireQueue.Enqueue ((STATS_FIRE_MODE)_arr.GetValue (i));	
+		}
 	}
 
 	void Update () {
@@ -69,27 +78,8 @@ public class PlayerController : MoveObject {
 		transform.rotation = Quaternion.Euler (0, 0, -tilt * move.x);
 		*/
 
-		//touch
-		//if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began){
-		//	Ray _ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-
-		//pc touch
-		#if UNITY_EDITOR
-		//pc touch controllerz
-		Ray _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		if(plane.Raycast(_ray, out distacne)){
-			transform.position = _ray.GetPoint(distacne);
-			transform.position = new Vector3 (
-				Mathf.Clamp (transform.position.x, boundary.xMin, boundary.xMax),
-				0,
-				Mathf.Clamp (transform.position.z, boundary.zMin, boundary.zMax)
-			);
-		}
-		//transform.rotation = Quaternion.Euler (0, 0, -tilt * move.x);
-		#else
-		//mobile touch control
-		if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began){
-			Ray _ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+		if(Input.GetMouseButton(0)){
+			Ray _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			if(plane.Raycast(_ray, out distacne)){
 				transform.position = _ray.GetPoint(distacne);
 				transform.position = new Vector3 (
@@ -99,7 +89,12 @@ public class PlayerController : MoveObject {
 				);
 			}
 		}
-		#endif
+
+		if (Input.GetMouseButtonDown (1)) {
+			fireMode = fireQueue.Dequeue();
+			fireQueue.Enqueue (fireMode);
+		}
+		//transform.rotation = Quaternion.Euler (0, 0, -tilt * move.x);
 	}
 
 
