@@ -28,10 +28,10 @@ public class AsteroidController : MoveObject {
 	//	point = _point;
 	//}
 
-	public override void Destroy(){ 
-		//스코어 업데이트하고 돌려준다.
-		base.Destroy (); 
-	}
+	//public override void Destroy(){ 
+	//	//스코어 업데이트하고 돌려준다.
+	//	base.Destroy (); 
+	//}
 
 	public void AddScore(){
 		GameController.ins.SetScore (point);
